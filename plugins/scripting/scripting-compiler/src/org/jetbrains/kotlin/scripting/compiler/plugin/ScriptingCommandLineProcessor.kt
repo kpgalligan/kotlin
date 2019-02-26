@@ -6,30 +6,14 @@
 package org.jetbrains.kotlin.scripting.compiler.plugin
 
 import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
-import java.io.File
 import org.jetbrains.kotlin.compiler.plugin.CliOption
 import org.jetbrains.kotlin.compiler.plugin.CliOptionProcessingException
 import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.config.CompilerConfigurationKey
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
-
-object ScriptingConfigurationKeys {
-    val DISABLE_SCRIPTING_PLUGIN_OPTION: CompilerConfigurationKey<Boolean> =
-        CompilerConfigurationKey.create("Disable scripting plugin")
-
-    val SCRIPT_DEFINITIONS: CompilerConfigurationKey<List<String>> =
-        CompilerConfigurationKey.create("Script definition classes")
-
-    val SCRIPT_DEFINITIONS_CLASSPATH: CompilerConfigurationKey<List<File>> =
-        CompilerConfigurationKey.create("Additional classpath for the script definitions")
-
-    val DISABLE_SCRIPT_DEFINITIONS_FROM_CLASSPATH_OPTION: CompilerConfigurationKey<Boolean> =
-        CompilerConfigurationKey.create("Do not extract script definitions from the compilation classpath")
-
-    val LEGACY_SCRIPT_RESOLVER_ENVIRONMENT_OPTION: CompilerConfigurationKey<MutableMap<String, Any?>> =
-        CompilerConfigurationKey.create("Script resolver environment")
-}
+import org.jetbrains.kotlin.scripting.configuration.KOTLIN_SCRIPTING_PLUGIN_ID
+import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys
+import java.io.File
 
 class ScriptingCommandLineProcessor : CommandLineProcessor {
     companion object {
@@ -63,7 +47,7 @@ class ScriptingCommandLineProcessor : CommandLineProcessor {
             required = false, allowMultipleOccurrences = true
         )
 
-        val PLUGIN_ID = "kotlin.scripting"
+        val PLUGIN_ID = KOTLIN_SCRIPTING_PLUGIN_ID
     }
 
     override val pluginId = PLUGIN_ID
@@ -87,9 +71,9 @@ class ScriptingCommandLineProcessor : CommandLineProcessor {
         }
 
         SCRIPT_DEFINITIONS_OPTION, LEGACY_SCRIPT_TEMPLATES_OPTION -> {
-            val currentDefs = configuration.getList(ScriptingConfigurationKeys.SCRIPT_DEFINITIONS).toMutableList()
+            val currentDefs = configuration.getList(ScriptingConfigurationKeys.SCRIPT_DEFINITIONS_CLASSES).toMutableList()
             currentDefs.addAll(value.split(','))
-            configuration.put(ScriptingConfigurationKeys.SCRIPT_DEFINITIONS, currentDefs)
+            configuration.put(ScriptingConfigurationKeys.SCRIPT_DEFINITIONS_CLASSES, currentDefs)
         }
         SCRIPT_DEFINITIONS_CLASSPATH_OPTION -> {
             val currentCP = configuration.getList(ScriptingConfigurationKeys.SCRIPT_DEFINITIONS_CLASSPATH).toMutableList()

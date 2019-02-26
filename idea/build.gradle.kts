@@ -1,5 +1,3 @@
-import org.gradle.jvm.tasks.Jar
-
 plugins {
     kotlin("jvm")
     id("jps-compatible")
@@ -91,7 +89,7 @@ dependencies {
     testRuntime(project(":kotlin-noarg-compiler-plugin"))
     testRuntime(project(":plugins:annotation-based-compiler-plugins-ide-support")) { isTransitive = false }
     testRuntime(project(":kotlin-scripting-idea")) { isTransitive = false }
-    testRuntime(project(":kotlin-scripting-compiler"))
+    testRuntime(project(":kotlin-scripting-compiler-impl"))
     testRuntime(project(":sam-with-receiver-ide-plugin")) { isTransitive = false }
     testRuntime(project(":kotlinx-serialization-compiler-plugin"))
     testRuntime(project(":kotlinx-serialization-ide-plugin")) { isTransitive = false }

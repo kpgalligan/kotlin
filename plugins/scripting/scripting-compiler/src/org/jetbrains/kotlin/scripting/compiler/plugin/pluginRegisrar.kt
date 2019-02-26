@@ -17,12 +17,13 @@ import org.jetbrains.kotlin.extensions.CompilerConfigurationExtension
 import org.jetbrains.kotlin.extensions.ProjectExtensionDescriptor
 import org.jetbrains.kotlin.resolve.extensions.ExtraImportsProviderExtension
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
-import org.jetbrains.kotlin.script.ScriptDefinitionProvider
-import org.jetbrains.kotlin.script.ScriptDependenciesProvider
-import org.jetbrains.kotlin.script.ScriptReportSink
-import org.jetbrains.kotlin.scripting.legacy.CliScriptDefinitionProvider
-import org.jetbrains.kotlin.scripting.legacy.CliScriptDependenciesProvider
-import org.jetbrains.kotlin.scripting.legacy.CliScriptReportSink
+import org.jetbrains.kotlin.scripting.compiler.plugin.definitions.CliScriptDefinitionProvider
+import org.jetbrains.kotlin.scripting.compiler.plugin.definitions.CliScriptDependenciesProvider
+import org.jetbrains.kotlin.scripting.compiler.plugin.definitions.CliScriptReportSink
+import org.jetbrains.kotlin.scripting.definitions.ScriptDefinitionProvider
+import org.jetbrains.kotlin.scripting.definitions.ScriptDependenciesProvider
+import org.jetbrains.kotlin.scripting.extensions.*
+import org.jetbrains.kotlin.scripting.resolve.ScriptReportSink
 
 private fun <T> ProjectExtensionDescriptor<T>.registerExtensionIfRequired(project: MockProject, extension: T) {
     try {
@@ -34,11 +35,21 @@ private fun <T> ProjectExtensionDescriptor<T>.registerExtensionIfRequired(projec
 
 class ScriptingCompilerConfigurationComponentRegistrar : ComponentRegistrar {
     override fun registerProjectComponents(project: MockProject, configuration: CompilerConfiguration) {
-        CompilerConfigurationExtension.registerExtension(project, ScriptingCompilerConfigurationExtension(project))
-        CollectAdditionalSourcesExtension.registerExtension(project, ScriptingCollectAdditionalSourcesExtension(project))
+        CompilerConfigurationExtension.registerExtension(project,
+                                                         ScriptingCompilerConfigurationExtension(
+                                                             project
+                                                         )
+        )
+        CollectAdditionalSourcesExtension.registerExtension(project,
+                                                            ScriptingCollectAdditionalSourcesExtension(
+                                                                project
+                                                            )
+        )
         ScriptEvaluationExtension.registerExtensionIfRequired(project, JvmCliScriptEvaluationExtension())
         ShellExtension.registerExtensionIfRequired(project, JvmCliReplShellExtension())
-        ReplFactoryExtension.registerExtensionIfRequired(project, JvmStandardReplFactoryExtension())
+        ReplFactoryExtension.registerExtensionIfRequired(project,
+                                                         JvmStandardReplFactoryExtension()
+        )
 
         val scriptDefinitionProvider = CliScriptDefinitionProvider()
         project.registerService(ScriptDefinitionProvider::class.java, scriptDefinitionProvider)

@@ -35,11 +35,11 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.kotlin.idea.KotlinFileType
-import org.jetbrains.kotlin.idea.util.compat.psiSearchHelperInstance
 import org.jetbrains.kotlin.idea.util.application.runReadAction
+import org.jetbrains.kotlin.idea.util.compat.psiSearchHelperInstance
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.scripting.compiler.plugin.definitions.findScriptDefinition
+import org.jetbrains.kotlin.scripting.definitions.findScriptDefinition
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
 
 infix fun SearchScope.and(otherScope: SearchScope): SearchScope = intersectWith(otherScope)

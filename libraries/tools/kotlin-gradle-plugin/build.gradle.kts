@@ -43,7 +43,7 @@ dependencies {
     compileOnly(project(":kotlin-compiler-runner"))
     compileOnly(project(":kotlin-annotation-processing"))
     compileOnly(project(":kotlin-annotation-processing-gradle"))
-    compileOnly(project(":kotlin-scripting-compiler"))
+    compileOnly(project(":kotlin-scripting-compiler-impl"))
 
     compileOnly("com.android.tools.build:gradle:2.0.0")
     compileOnly("com.android.tools.build:gradle-core:2.0.0")
