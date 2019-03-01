@@ -122,7 +122,8 @@ open class CreateClassFromUsageFix<E : KtElement> protected constructor(
                     }
                 }
             }
-            if (classInfo.kind != ClassKind.ENUM_ENTRY) {
+
+            if (classInfo.kind != ClassKind.ENUM_ENTRY && parents.find { it is PsiPackage } == null) {
                 parents += SeparateFileWrapper(PsiManager.getInstance(project))
             }
         }
