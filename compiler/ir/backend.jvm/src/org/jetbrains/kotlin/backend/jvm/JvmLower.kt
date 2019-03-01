@@ -20,9 +20,15 @@ import org.jetbrains.kotlin.backend.common.CommonBackendContext
 import org.jetbrains.kotlin.backend.common.lower.*
 import org.jetbrains.kotlin.backend.common.phaser.*
 import org.jetbrains.kotlin.backend.jvm.lower.*
+import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.util.PatchDeclarationParentsVisitor
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
+import org.jetbrains.kotlin.load.java.JvmAbi
 
 private fun makePatchParentsPhase(number: Int) = namedIrFilePhase(
     lower = object : SameTypeCompilerPhase<CommonBackendContext, IrFile> {
@@ -35,6 +41,29 @@ private fun makePatchParentsPhase(number: Int) = namedIrFilePhase(
     description = "Patch parent references in IrFile, pass $number",
     nlevels = 0
 )
+
+private fun makePropertiesPhase(originOfSyntheticMethodForAnnotations: IrDeclarationOrigin?) = makeIrFilePhase(
+    { context ->
+        PropertiesLowering(context, originOfSyntheticMethodForAnnotations) { propertyName ->
+            JvmAbi.getSyntheticMethodNameForAnnotatedProperty(propertyName)
+        }
+    },
+    name = "Properties",
+    description = "Move fields and accessors for properties to their classes",
+    stickyPostconditions = setOf(::checkNoProperties)
+)
+
+private fun checkNoProperties(irFile: IrFile) {
+    irFile.acceptVoid(object : IrElementVisitorVoid {
+        override fun visitElement(element: IrElement) {
+            element.acceptChildrenVoid(this)
+        }
+
+        override fun visitProperty(declaration: IrProperty) {
+            error("No properties should remain at this stage")
+        }
+    })
+}
 
 internal val jvmPhases = namedIrFilePhase(
     name = "IrLowering",
