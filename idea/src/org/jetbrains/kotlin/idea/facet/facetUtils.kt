@@ -58,11 +58,20 @@ private fun getDefaultTargetPlatform(module: Module, rootModel: ModuleRootModel?
         if (jvmTarget == null) {
             val sdk = ((rootModel ?: ModuleRootManager.getInstance(module))).sdk
             val sdkVersion = (sdk?.sdkType as? JavaSdk)?.getVersion(sdk)
-            if (sdkVersion == null || sdkVersion >= JavaSdkVersion.JDK_1_8) {
-                jvmTarget = JvmTarget.JVM_1_8
+            jvmTarget = when (sdkVersion) {
+                JavaSdkVersion.JDK_1_8 -> JvmTarget.JVM_1_8
+                JavaSdkVersion.JDK_1_9 -> JvmTarget.JVM_9
+                JavaSdkVersion.JDK_10 -> JvmTarget.JVM_10
+                JavaSdkVersion.JDK_11 -> JvmTarget.JVM_11
+                null -> JvmTarget.JVM_1_8
+                else -> when {
+                    sdkVersion < JavaSdkVersion.JDK_1_7 -> JvmTarget.JVM_1_6
+                    sdkVersion > JavaSdkVersion.JDK_11 -> JvmTarget.JVM_12
+                    else -> JvmTarget.JVM_1_8
+                }
             }
         }
-        return if (jvmTarget != null) JvmIdePlatformKind.Platform(jvmTarget) else JvmIdePlatformKind.defaultPlatform
+        return JvmIdePlatformKind.Platform(jvmTarget)
     }
     return platformKind.defaultPlatform
 }

@@ -238,6 +238,9 @@ fun getDefaultJvmTarget(sdk: Sdk?, version: String): JvmTarget? {
     val sdkVersion = sdk?.version
     return when {
         sdkVersion == null -> null
+        sdkVersion.isAtLeast(JavaSdkVersion.JDK_11) -> JvmTarget.JVM_11
+        sdkVersion.isAtLeast(JavaSdkVersion.JDK_10) -> JvmTarget.JVM_10
+        sdkVersion.isAtLeast(JavaSdkVersion.JDK_1_9) -> JvmTarget.JVM_9
         sdkVersion.isAtLeast(JavaSdkVersion.JDK_1_8) -> JvmTarget.JVM_1_8
         sdkVersion.isAtLeast(JavaSdkVersion.JDK_1_6) -> JvmTarget.JVM_1_6
         else -> null
