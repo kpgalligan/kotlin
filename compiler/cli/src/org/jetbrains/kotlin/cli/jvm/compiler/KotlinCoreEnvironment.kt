@@ -132,15 +132,18 @@ class KotlinCoreEnvironment private constructor(
     ) :
         KotlinCoreProjectEnvironment(disposable, applicationEnvironment) {
 
+        private var extensionRegistered = false
+
         override fun preregisterServices() {
             registerProjectExtensionPoints(Extensions.getArea(project))
         }
 
         fun registerExtensionsFromPlugins(configuration: CompilerConfiguration) {
-            registerPluginExtensionPoints(project)
-
-            registerExtensionsFromPlugins(project, configuration)
-
+            if (!extensionRegistered) {
+                registerPluginExtensionPoints(project)
+                registerExtensionsFromPlugins(project, configuration)
+                extensionRegistered = true
+            }
         }
 
         override fun registerJavaPsiFacade() {
@@ -177,6 +180,10 @@ class KotlinCoreEnvironment private constructor(
         val project = projectEnvironment.project
 
         val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+
+        (projectEnvironment as? ProjectEnvironment)?.registerExtensionsFromPlugins(configuration)
+        // otherwise consider that project environment is properly configured before passing to the environment
+        // TODO: consider some asserts to check important extension points
 
         project.registerService(DeclarationProviderFactoryService::class.java, CliDeclarationProviderFactoryService(sourceFiles))
 
@@ -416,7 +423,6 @@ class KotlinCoreEnvironment private constructor(
         ): KotlinCoreEnvironment {
             val appEnv = getOrCreateApplicationEnvironmentForProduction(parentDisposable, configuration)
             val projectEnv = ProjectEnvironment(parentDisposable, appEnv)
-            projectEnv.registerExtensionsFromPlugins(configuration)
             val environment = KotlinCoreEnvironment(projectEnv, configuration, configFiles)
 
             synchronized(APPLICATION_LOCK) {
@@ -449,7 +455,6 @@ class KotlinCoreEnvironment private constructor(
             // Tests are supposed to create a single project and dispose it right after use
             val appEnv = createApplicationEnvironment(parentDisposable, configuration, unitTestMode = true)
             val projectEnv = ProjectEnvironment(parentDisposable, appEnv)
-            projectEnv.registerExtensionsFromPlugins(configuration)
             return KotlinCoreEnvironment(projectEnv, configuration, extensionConfigs)
         }
 
